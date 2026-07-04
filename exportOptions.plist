@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>method</key>
-	<string>development</string>
+	<string>app-store</string>
 	<key>compileBitcode</key>
 	<false/>
 	<key>signingStyle</key>
@@ -11,7 +11,7 @@
 	<key>provisioningProfiles</key>
 	<dict>
 		<key>com.xiaofei.probetool</key>
-		<string>match Development com.xiaofei.probetool</string>
+		<string>${PROVISIONING_PROFILE_NAME}</string>
 	</dict>
 </dict>
 </plist>
