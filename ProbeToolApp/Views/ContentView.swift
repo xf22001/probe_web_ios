@@ -1,17 +1,12 @@
 import SwiftUI
 
-/// Root view: full-screen WKWebView with a swipe-to-open native drawer.
-/// Drawer contains service toggle and log export.
+/// Root view: full-screen WKWebView with hamburger-to-open native drawer.
+/// No swipe gesture — only hamburger icon opens, tap dim overlay closes.
 struct ContentView: View {
     @EnvironmentObject var serverState: ServerState
-    @State private var drawerOffset: CGFloat = -280 // Hidden
-    @State private var dragOffset: CGFloat = 0
+    @State private var isDrawerOpen = false
 
     private let drawerWidth: CGFloat = 280
-
-    var isDrawerOpen: Bool {
-        drawerOffset >= 0
-    }
 
     var body: some View {
         ZStack(alignment: .leading) {
@@ -22,9 +17,9 @@ struct ContentView: View {
             )
             .ignoresSafeArea()
 
-            // — Layer 2: Dim overlay when drawer is open —
-            if drawerOffset > -drawerWidth {
-                Color.black.opacity(Double((drawerWidth + drawerOffset) / drawerWidth) * 0.4)
+            // — Layer 2: Dim overlay (tap to close) —
+            if isDrawerOpen {
+                Color.black.opacity(0.4)
                     .ignoresSafeArea()
                     .onTapGesture { closeDrawer() }
             }
@@ -34,13 +29,13 @@ struct ContentView: View {
                 HStack {
                     Button(action: { openDrawer() }) {
                         Image(systemName: "line.3.horizontal")
-                            .font(.title2)
+                            .font(.footnote)
                             .foregroundColor(.white)
-                            .padding(12)
+                            .padding(10)
                             .background(Color.black.opacity(0.5))
                             .clipShape(Circle())
                     }
-                    .padding(.leading, 16)
+                    .padding(.leading, 12)
                     .padding(.top, 50)
                     Spacer()
                 }
@@ -48,35 +43,9 @@ struct ContentView: View {
             }
 
             // — Layer 4: Drawer panel —
-            SideDrawerMenu(isOpen: Binding(
-                get: { drawerOffset >= 0 },
-                set: { _ in }
-            ))
-            .offset(x: drawerOffset + dragOffset)
-            .animation(.easeInOut(duration: 0.2), value: drawerOffset)
-            .animation(.easeInOut(duration: 0.2), value: dragOffset)
-            .gesture(
-                DragGesture()
-                    .onChanged { value in
-                        let offset = value.translation.width
-                        if drawerOffset <= 0 && offset > 0 {
-                            // Opening gesture
-                            dragOffset = min(offset, drawerWidth)
-                        } else if drawerOffset >= 0 && offset < 0 {
-                            // Closing gesture
-                            dragOffset = max(offset, -drawerWidth)
-                        }
-                    }
-                    .onEnded { value in
-                        let velocity = value.predictedEndTranslation.width - value.translation.width
-                        if drawerOffset + dragOffset + velocity > -drawerWidth / 2 {
-                            openDrawer()
-                        } else {
-                            closeDrawer()
-                        }
-                        dragOffset = 0
-                    }
-            )
+            SideDrawerMenu(isOpen: $isDrawerOpen)
+                .offset(x: isDrawerOpen ? 0 : -drawerWidth)
+                .animation(.easeInOut(duration: 0.2), value: isDrawerOpen)
         }
         .onOpenURL { _ in
             closeDrawer()
@@ -85,13 +54,13 @@ struct ContentView: View {
 
     private func openDrawer() {
         withAnimation(.easeInOut(duration: 0.2)) {
-            drawerOffset = 0
+            isDrawerOpen = true
         }
     }
 
     private func closeDrawer() {
         withAnimation(.easeInOut(duration: 0.2)) {
-            drawerOffset = -drawerWidth
+            isDrawerOpen = false
         }
     }
 }

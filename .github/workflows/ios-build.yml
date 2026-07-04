@@ -58,7 +58,15 @@ jobs:
           rm -rf ProbeToolApp/Static
           cp -a go-core-lib/static ProbeToolApp/Static
 
-      # — Step 5: Install XcodeGen and generate project —
+      # — Step 5: Inspect framework headers to confirm class name —
+      - name: Inspect ProbeTool framework headers
+        run: |
+          echo "=== Framework headers ==="
+          find libs/ProbeTool.xcframework -name "*.h" -exec echo "--- {} ---" \; -exec cat {} \;
+          echo "=== Module map ==="
+          find libs/ProbeTool.xcframework -name "module.modulemap" -exec cat {} \;
+
+      # — Step 6: Install XcodeGen and generate project —
       - name: Install XcodeGen
         run: brew install xcodegen
 
