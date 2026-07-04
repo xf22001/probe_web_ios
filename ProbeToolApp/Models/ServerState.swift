@@ -2,25 +2,46 @@ import Foundation
 import Combine
 
 /// ObservableObject holding the service's running state.
-/// Mirrors Android's `GoForegroundService.isRunning` StateFlow.
 class ServerState: ObservableObject {
     @Published var isRunning = false
+    @Published var isStarting = false
+    @Published var lastError = ""
 
     private let manager = GoServerManager()
 
     func toggle() {
+        if isStarting {
+            return
+        }
+
         if isRunning {
-            manager.stop()
-            isRunning = false
+            manager.stop { [weak self] running, error in
+                guard let self else { return }
+                self.isRunning = running
+                self.isStarting = false
+                self.lastError = running ? error : ""
+            }
         } else {
-            StaticFileManager.ensureStaticFiles()
+            do {
+                try StaticFileManager.ensureStaticFiles()
+            } catch {
+                lastError = error.localizedDescription
+                return
+            }
+            isStarting = true
+            isRunning = false
+            lastError = ""
             manager.start(
                 logDir: DirectoryHelper.logDir,
                 ftpRootDir: DirectoryHelper.ftpRootDir,
                 staticDir: DirectoryHelper.staticDir,
                 timezone: TimeZone.current.identifier
-            )
-            isRunning = true
+            ) { [weak self] running, error in
+                guard let self else { return }
+                self.isRunning = running
+                self.isStarting = false
+                self.lastError = running ? "" : error
+            }
         }
     }
 }

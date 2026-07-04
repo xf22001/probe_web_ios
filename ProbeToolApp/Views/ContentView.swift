@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Root view: full-screen WKWebView with hamburger-to-open native drawer.
+/// Root view: native top bar plus WKWebView, with hamburger-to-open drawer.
 /// No swipe gesture — only hamburger icon opens, tap dim overlay closes.
 struct ContentView: View {
     @EnvironmentObject var serverState: ServerState
@@ -10,12 +10,28 @@ struct ContentView: View {
 
     var body: some View {
         ZStack(alignment: .leading) {
-            // — Layer 1: Full-screen WebView —
-            WebViewContainer(
-                urlString: "http://127.0.0.1:8000",
-                isRunning: serverState.isRunning
-            )
-            .ignoresSafeArea()
+            // — Layer 1: Native chrome + WebView content —
+            VStack(spacing: 0) {
+                HStack {
+                    Button(action: { openDrawer() }) {
+                        Image(systemName: "line.3.horizontal")
+                            .font(.footnote)
+                            .foregroundColor(.primary)
+                            .frame(width: 32, height: 32)
+                    }
+                    .accessibilityLabel("Open menu")
+
+                    Spacer()
+                }
+                .padding(.horizontal, 4)
+                .frame(height: 32)
+                .background(Color(.systemBackground))
+
+                WebViewContainer(
+                    urlString: "http://127.0.0.1:8000",
+                    isRunning: serverState.isRunning
+                )
+            }
 
             // — Layer 2: Dim overlay (tap to close) —
             if isDrawerOpen {
@@ -24,25 +40,7 @@ struct ContentView: View {
                     .onTapGesture { closeDrawer() }
             }
 
-            // — Layer 3: Hamburger button —
-            VStack {
-                HStack {
-                    Button(action: { openDrawer() }) {
-                        Image(systemName: "line.3.horizontal")
-                            .font(.footnote)
-                            .foregroundColor(.white)
-                            .padding(10)
-                            .background(Color.black.opacity(0.5))
-                            .clipShape(Circle())
-                    }
-                    .padding(.leading, 12)
-                    .padding(.top, 50)
-                    Spacer()
-                }
-                Spacer()
-            }
-
-            // — Layer 4: Drawer panel —
+            // — Layer 3: Drawer panel —
             SideDrawerMenu(isOpen: $isDrawerOpen)
                 .offset(x: isDrawerOpen ? 0 : -drawerWidth)
                 .animation(.easeInOut(duration: 0.2), value: isDrawerOpen)

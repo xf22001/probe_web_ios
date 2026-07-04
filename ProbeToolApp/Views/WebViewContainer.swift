@@ -17,13 +17,19 @@ struct WebViewContainer: UIViewRepresentable {
 
         let view = WKWebView(frame: .zero, configuration: config)
         view.navigationDelegate = context.coordinator
-        view.scrollView.contentInsetAdjustmentBehavior = .never
+        view.scrollView.contentInsetAdjustmentBehavior = .automatic
         view.isOpaque = false
         view.backgroundColor = .black
         return view
     }
 
     func updateUIView(_ uiView: WKWebView, context: Context) {
+        let target = isRunning ? urlString : "stopped"
+        guard context.coordinator.lastTarget != target else {
+            return
+        }
+        context.coordinator.lastTarget = target
+
         if isRunning {
             if let url = URL(string: urlString) {
                 let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
@@ -39,6 +45,8 @@ struct WebViewContainer: UIViewRepresentable {
     }
 
     class Coordinator: NSObject, WKNavigationDelegate {
+        var lastTarget = ""
+
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
             print("WebView navigation failed: \(error.localizedDescription)")
         }

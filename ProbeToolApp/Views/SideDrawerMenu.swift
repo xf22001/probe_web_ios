@@ -7,6 +7,62 @@ struct SideDrawerMenu: View {
     @Binding var isOpen: Bool
     @State private var showLogSheet = false
 
+    private var hasError: Bool {
+        !serverState.lastError.isEmpty
+    }
+
+    private var statusColor: Color {
+        if serverState.isRunning {
+            return Color.green
+        }
+        if serverState.isStarting {
+            return Color.blue
+        }
+        if hasError {
+            return Color.red
+        }
+        return Color.orange
+    }
+
+    private var statusText: String {
+        if serverState.isRunning {
+            return "Service Running"
+        }
+        if serverState.isStarting {
+            return "Service Starting"
+        }
+        if hasError {
+            return "Service Error"
+        }
+        return "Service Stopped"
+    }
+
+    private var detailText: String {
+        if serverState.isRunning {
+            return "http://127.0.0.1:8000"
+        }
+        if serverState.isStarting {
+            return "Starting backend"
+        }
+        if hasError {
+            return serverState.lastError
+        }
+        return "Tap to start"
+    }
+
+    private var cardBackground: Color {
+        if serverState.isRunning {
+            return Color(red: 0.91, green: 0.96, blue: 0.91)
+        }
+        if serverState.isStarting {
+            return Color(red: 0.90, green: 0.95, blue: 1.0)
+        }
+        if hasError {
+            return Color(red: 1.0, green: 0.92, blue: 0.92)
+        }
+        return Color(red: 1.0, green: 0.95, blue: 0.88)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // — Top spacing —
@@ -16,14 +72,14 @@ struct SideDrawerMenu: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
                     Circle()
-                        .fill(serverState.isRunning ? Color.green : Color.orange)
+                        .fill(statusColor)
                         .frame(width: 10, height: 10)
-                    Text(serverState.isRunning ? "Service Running" : "Service Stopped")
+                    Text(statusText)
                         .font(.headline)
-                        .foregroundColor(serverState.isRunning ? Color(red: 0.18, green: 0.49, blue: 0.20) : Color(red: 0.90, green: 0.40, blue: 0.0))
+                        .foregroundColor(statusColor)
                 }
 
-                Text(serverState.isRunning ? "http://127.0.0.1:8000" : "Tap to start")
+                Text(detailText)
                     .font(.caption)
                     .foregroundColor(.secondary)
 
@@ -32,9 +88,9 @@ struct SideDrawerMenu: View {
                     isOpen = false
                 }) {
                     HStack {
-                        Image(systemName: serverState.isRunning ? "stop.fill" : "play.fill")
+                        Image(systemName: serverState.isStarting ? "hourglass" : (serverState.isRunning ? "stop.fill" : "play.fill"))
                             .font(.caption)
-                        Text(serverState.isRunning ? "STOP SERVICE" : "START SERVICE")
+                        Text(serverState.isStarting ? "STARTING" : (serverState.isRunning ? "STOP SERVICE" : "START SERVICE"))
                             .fontWeight(.medium)
                     }
                     .frame(maxWidth: .infinity)
@@ -43,12 +99,13 @@ struct SideDrawerMenu: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
                 }
+                .disabled(serverState.isStarting)
                 .padding(.top, 4)
             }
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(serverState.isRunning ? Color(red: 0.91, green: 0.96, blue: 0.91) : Color(red: 1.0, green: 0.95, blue: 0.88))
+                    .fill(cardBackground)
             )
             .padding(.horizontal, 16)
 

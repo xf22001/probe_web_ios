@@ -6,15 +6,25 @@ import ProbeTool
 class GoServerManager {
     private let queue = DispatchQueue(label: "com.probetool.go-server")
 
-    func start(logDir: String, ftpRootDir: String, staticDir: String, timezone: String) {
+    func start(logDir: String, ftpRootDir: String, staticDir: String, timezone: String, completion: @escaping (Bool, String) -> Void) {
         queue.async {
             ServerStart(logDir, ftpRootDir, staticDir, timezone)
+            let running = ServerIsRunning()
+            let error = running ? "" : ServerLastError()
+            DispatchQueue.main.async {
+                completion(running, error.isEmpty ? "Server failed to start" : error)
+            }
         }
     }
 
-    func stop() {
+    func stop(completion: @escaping (Bool, String) -> Void) {
         queue.async {
             ServerStop()
+            let running = ServerIsRunning()
+            let error = ServerLastError()
+            DispatchQueue.main.async {
+                completion(running, error)
+            }
         }
     }
 }
