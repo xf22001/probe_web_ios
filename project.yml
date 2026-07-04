@@ -22,6 +22,7 @@ targets:
       base:
         INFOPLIST_FILE: ProbeToolApp/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.xiaofei.probetool
+        PRODUCT_MODULE_NAME: ProbeToolApp
         FRAMEWORK_SEARCH_PATHS:
           - "$(PROJECT_DIR)/libs"
         OTHER_LDFLAGS:

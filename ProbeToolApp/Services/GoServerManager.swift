@@ -8,13 +8,13 @@ class GoServerManager {
 
     func start(logDir: String, ftpRootDir: String, staticDir: String, timezone: String) {
         queue.async {
-            ProbeToolServer.start(logDir, ftpRootDir, staticDir, timezone)
+            ProbetoolServer.start(logDir, ftpRootDir, staticDir, timezone)
         }
     }
 
     func stop() {
         queue.async {
-            ProbeToolServer.stop()
+            ProbetoolServer.stop()
         }
     }
 }
