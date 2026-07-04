@@ -7,8 +7,6 @@ class StaticFileManager {
     private static let didExtractKey = "static_files_extracted"
 
     static func ensureStaticFiles() {
-        guard !UserDefaults.standard.bool(forKey: didExtractKey) else { return }
-
         let targetDir = URL(fileURLWithPath: DirectoryHelper.staticDir)
         guard let bundleDir = Bundle.main.resourceURL?.appendingPathComponent("Static") else {
             print("Static directory not found in bundle")
@@ -27,7 +25,6 @@ class StaticFileManager {
                 try FileManager.default.copyItem(at: file, to: dest)
             }
 
-            UserDefaults.standard.set(true, forKey: didExtractKey)
             print("Static files extracted to \(targetDir.path)")
         } catch {
             print("Failed to extract static files: \(error)")
