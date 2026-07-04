@@ -30,6 +30,9 @@ targets:
     preBuildScripts:
       - name: "Copy Static Files"
         script: |
-          cp -a "${SRCROOT}/ProbeToolApp/Static" "${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/Static"
+          STATIC_SRC="${SRCROOT}/ProbeToolApp/Static"
+          if [ -d "$STATIC_SRC" ]; then
+            cp -a "$STATIC_SRC" "${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/Static"
+          fi
         inputFiles: []
         outputFiles: []
