@@ -1,0 +1,34 @@
+name: ProbeTool
+options:
+  bundleIdPrefix: com.xiaofei.probetool
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+
+targets:
+  ProbeTool:
+    type: application
+    platform: iOS
+    sources:
+      - path: ProbeToolApp
+    dependencies:
+      - framework: libs/ProbeTool.xcframework
+        embed: true
+    settings:
+      base:
+        INFOPLIST_FILE: ProbeToolApp/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.xiaofei.probetool
+        FRAMEWORK_SEARCH_PATHS:
+          - "$(PROJECT_DIR)/libs"
+        OTHER_LDFLAGS:
+          - "-lresolv"
+    preBuildScripts:
+      - name: "Copy Static Files"
+        script: |
+          cp -a "${SRCROOT}/ProbeToolApp/Static" "${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/Static"
+        inputFiles: []
+        outputFiles: []

@@ -1,0 +1,107 @@
+name: Build iOS App with Go xcframework
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build iOS App
+    runs-on: macos-latest
+
+    steps:
+      # — Step 1: Checkout iOS app repo —
+      - name: Checkout iOS app repository
+        uses: actions/checkout@v4
+
+      # — Step 2: Set up Go —
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      # — Step 3: Install gomobile tools —
+      - name: Install gomobile tools
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          go install golang.org/x/mobile/cmd/gobind@latest
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+      # — Step 4: Clone Go core library and build xcframework —
+      - name: Clone Go core library
+        run: |
+          git clone https://${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}@github.com/xf22001/probe_web.git go-core-lib
+
+      - name: Configure Go module
+        working-directory: ./go-core-lib
+        run: |
+          if [ ! -f go.mod ]; then
+            go mod init probetool
+          fi
+          go mod tidy
+          go get golang.org/x/mobile/bind
+
+      - name: Initialize gomobile
+        run: gomobile init
+
+      - name: Build iOS .xcframework
+        working-directory: ./go-core-lib
+        run: |
+          gomobile bind -target=ios -o ProbeTool.xcframework probetool/server
+
+      - name: Copy xcframework to libs
+        run: |
+          mkdir -p libs
+          cp -a go-core-lib/ProbeTool.xcframework libs/
+
+      - name: Copy static files
+        run: |
+          rm -rf ProbeToolApp/Static
+          cp -a go-core-lib/static ProbeToolApp/Static
+
+      # — Step 5: Install XcodeGen and generate project —
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      # — Step 6: Build for device (archive, no sign) —
+      - name: Build for iOS device (archive)
+        run: |
+          xcodebuild archive \
+            -project ProbeTool.xcodeproj \
+            -scheme ProbeTool \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath build/ProbeTool.xcarchive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      # — Step 7: Build for simulator (runnable .app) —
+      - name: Build for iOS simulator
+        run: |
+          xcodebuild build \
+            -project ProbeTool.xcodeproj \
+            -scheme ProbeTool \
+            -sdk iphonesimulator \
+            -configuration Release \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      # — Step 8: Upload artifacts —
+      - name: Upload xcarchive artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: probetool-ios-xcarchive
+          path: build/ProbeTool.xcarchive
+          retention-days: 7
+
+      - name: Upload xcframework artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: probetool-xcframework
+          path: libs/ProbeTool.xcframework
+          retention-days: 7

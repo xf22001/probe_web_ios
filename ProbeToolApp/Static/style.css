@@ -1,0 +1,527 @@
+/* static/style.css - Mobile Fixed Layout Version */
+
+/* === 全局复位 === */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0; 
+    background-color: #f4f4f4;
+    color: #333;
+    /* 使用 dvh 适配动态地址栏，回退使用 vh */
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden; /* 防止整个页面产生滚动条 */
+    display: flex;
+    flex-direction: column;
+}
+
+/* === 主容器 === */
+.main-layout-wrapper {
+    display: flex;
+    flex-direction: column; 
+    width: 100%; 
+    height: 100%; 
+    background-color: #fff;
+    overflow: hidden; /* 确保主容器内的滚动由子元素控制 */
+}
+
+/* === 顶部 Header === */
+header {
+    height: 50px;
+    padding: 0 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    justify-content: space-between; /* 新增: 使标题和按钮左右对齐 */
+    gap: 10px; /* 新增: 标题和按钮之间的间距 */
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #0056b3;
+    flex-shrink: 0; /* 新增: 防止标题在空间不足时收缩 */
+}
+
+/* 错误提示样式 */
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 10px 15px;
+    margin: 0;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.error-message .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #721c24;
+    padding: 0;
+    margin-left: 10px;
+}
+
+/* === 中间区域 (侧边栏 + 日志) === */
+.content-area {
+    display: flex; 
+    flex: 1; /* 占据剩余高度 */
+    overflow: hidden; /* 内部滚动 */
+    position: relative;
+}
+
+/* PC端布局 */
+.side-panel {
+    width: 360px; 
+    padding: 15px;
+    border-right: 1px solid #eee;
+    background-color: #fafafa;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* 新增: 平滑过渡效果 */
+    transition: width 0.3s ease, padding 0.3s ease, opacity 0.3s ease, max-height 0.3s ease, border-width 0.3s ease;
+    overflow-x: hidden; /* 防止内容在收缩时溢出 */
+    flex-shrink: 0; /* 确保在flex容器中能正确收缩 */
+}
+
+/* 新增: 侧边栏收起时的样式 */
+.side-panel.collapsed {
+    width: 0;
+    min-width: 0; /* 覆盖最小宽度 */
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    border-right: none; /* 收起时移除边框 */
+    pointer-events: none; /* 收起时禁用交互 */
+    margin-right: -1px; /* 略微调整以完全隐藏边框，防止渲染问题 */
+}
+
+.center-content {
+    flex: 1; 
+    padding: 15px;
+    display: flex;
+    flex-direction: column; 
+    overflow: hidden; 
+    background-color: #fff;
+}
+
+/* === 日志区域 === */
+.log-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .log-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0; /* 允许内容区域收缩 */
+        height: 100%; /* 确保占满容器 */
+    }
+}
+
+.log-header-controls {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 8px; 
+    flex-shrink: 0;
+}
+
+.log-header-controls h2 { font-size: 1rem; margin: 0; }
+
+.log-buttons-group { display: flex; gap: 5px; }
+
+.log-area {
+    flex: 1;
+    border: 1px solid #ccc;
+    background-color: #222;
+    color: #0f0;
+    padding: 10px;
+    overflow-y: auto; /* 只有这里可以滚动 */
+    font-family: monospace;
+    font-size: 0.75rem; /* 减小字体大小 */
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-break: break-all;
+    border-radius: 4px;
+}
+
+/* === 底部命令栏 (PC默认样式) === */
+.bottom-command-panel {
+    padding: 10px 15px;
+    border-top: 1px solid #ddd;
+    background-color: #f8f9fa;
+    flex-shrink: 0;
+}
+
+.command-section {
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+}
+
+.command-section h3 {
+    margin: 0; 
+    font-size: 0.9rem;
+    white-space: nowrap; 
+}
+
+.input-wrapper {
+    position: relative;
+    flex-grow: 1; 
+}
+
+/* 历史记录 */
+.history-list {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2px 0;
+    max-height: 150px;
+    overflow-y: auto;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    z-index: 2000;
+}
+
+.history-list li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+}
+
+.history-delete-btn { color: #999; padding: 0 10px; }
+
+/* === 通用控件 === */
+.section h2 {
+    font-size: 1rem;
+    margin: 0 0 10px 0;
+    color: #555;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+button, input[type="text"], select { 
+    padding: 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px; 
+    height: 36px; 
+}
+
+input[type="text"], select { width: 100%; }
+
+button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border: none;
+}
+
+button:disabled { background-color: #e0e0e0; color: #999; }
+
+/* Loading indicator styles */
+.loading-indicator {
+    display: inline-block;
+    padding: 0 10px;
+    height: 36px;
+    line-height: 36px;
+    color: #007bff;
+    font-size: 14px;
+}
+
+.loading-indicator.small {
+    height: 28px;
+    line-height: 28px;
+    font-size: 12px;
+}
+
+.loading-indicator.inline {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: auto;
+    line-height: normal;
+}
+
+.button-group {
+    display: flex;
+    gap: 3px;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.button-group .loading-indicator {
+    flex-shrink: 0;
+}
+
+.small-button { height: 28px; font-size: 12px; white-space: nowrap; }
+
+/* 新增: Header中切换按钮的样式 */
+.header-toggle-button {
+    padding: 0 10px;
+    height: 36px;
+    font-size: 0.9rem;
+    white-space: nowrap; /* 防止文本换行 */
+}
+
+    #deviceList {
+        list-style: none;
+        padding: 0;
+        border: 1px solid #eee;
+        max-height: 200px;  /* 增加高度以显示更多设备 */
+        overflow-y: auto;
+        margin-top: 5px;
+        background: #fff;
+    }
+
+#deviceList li { padding: 8px; border-bottom: 1px solid #eee; font-size: 0.85em; }
+
+
+.info-text { font-size: 0.85em; margin-top: 5px; min-height: 1.2em; }
+
+/* 设备计数徽章样式 */
+.device-count-badge {
+    background-color: #007bff;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: bold;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+.command-response { color: #ffd700; font-weight: bold; }
+
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+    max-width: 300px;
+    width: 80%;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Focus styles for better accessibility */
+button:focus, input:focus, select:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* =========================================
+   === 移动端 强力适配 (Mobile Fix) ===
+   ========================================= */
+@media (max-width: 768px) {
+    /* Modal styles for mobile */
+    .modal-content {
+        width: 90%;
+        padding: 15px;
+    }
+
+    /* 1. 改变布局方向 */
+    .content-area {
+        flex-direction: column;
+        /* 关键：给底部留出空间，防止内容被 fixed 的 footer 遮挡 */
+        /* 使用 env() 函数更好地适配不同设备 */
+        padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+        height: 100%;
+    }
+
+    .button-group {
+        flex-wrap: nowrap; /* 与PC端保持一致 */
+    }
+
+    .button-group .loading-indicator {
+        height: 36px; /* 与PC端控件高度保持一致 */
+        line-height: 36px; /* 与PC端控件高度保持一致 */
+    }
+
+    /* 2. 侧边栏在顶部 */
+    .side-panel {
+        width: 100%;
+        height: 300px; /* 固定移动端侧边栏高度 */
+        max-height: 300px; /* 限制移动端总高度，防止占用过多屏幕 */
+        border-right: none;
+        border-bottom: 1px solid #ccc;
+        flex-shrink: 0;
+        /* 添加平滑展开/收起动画 */
+        transition: max-height 0.3s ease, padding 0.3s ease;
+        overflow-y: auto; /* 添加滚动条，防止内容溢出 */
+    }
+
+    /* 新增: 移动端侧边栏收起时的样式 */
+    .side-panel.collapsed {
+        max-height: 0; /* 收起时高度为0 */
+        padding-top: 0;
+        padding-bottom: 0;
+        border-bottom: none; /* 收起时移除边框 */
+        margin-bottom: -1px; /* 略微调整以完全隐藏边框 */
+    }
+
+    /* 3. 日志区域 */
+    .center-content {
+        flex: 1; /* 自动填充剩余空间 */
+        padding: 10px;
+        /* 确保在移动设备上有足够的最小高度 */
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* 防止内容溢出 */
+    }
+
+    /* 改进日志显示区域在移动端的表现 */
+    .log-area {
+        font-size: 0.75rem; /* 减小字体大小以保持一致 */
+        padding: 10px; /* 与PC端保持一致 */
+        /* 添加触摸滚动优化 */
+        -webkit-overflow-scrolling: touch;
+        /* 确保在小屏幕上也有最小高度 */
+        min-height: 150px;
+    }
+
+    /* 4. 底部命令栏：使用绝对固定定位 (Nuclear Solution) */
+    .bottom-command-panel {
+        position: fixed; /* 钉死在屏幕底部 */
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000; /* 保证在最上层 */
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1); /* 加个阴影区分 */
+        padding: 8px 10px;
+        /* 适配 iPhone 底部横条 */
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+        background-color: #fff; /* 必须有背景色，否则透明 */
+        /* 添加过渡动画使出现更平滑 */
+        transition: transform 0.3s ease;
+    }
+
+    /* 5. 统一控件尺寸 - 保持与PC端一致 */
+    button, select, input[type="text"] {
+        height: 36px;        /* 与PC端保持一致 */
+        font-size: 14px;     /* 与PC端保持一致 */
+        padding: 0 10px;     /* 与PC端保持一致 */
+    }
+
+    .small-button {
+        height: 28px;        /* 与PC端保持一致 */
+        font-size: 12px;     /* 与PC端保持一致 */
+    }
+
+    /* 移动端Header中的切换按钮样式调整 */
+    .header-toggle-button {
+        height: 36px;        /* 与PC端保持一致 */
+        font-size: 0.9rem;   /* 与PC端保持一致 */
+    }
+
+    /* 隐藏标题节省空间 */
+    .command-section h3 { display: none; }
+
+    /* 调整设备列表高度 */
+    #deviceList {
+        max-height: 200px;  /* 使用更大的max-height以显示更多设备 */
+        height: auto;      /* 让高度根据内容自适应，不超过最大值 */
+    }
+}
+
+/* =========================================
+   === 小屏幕适配 (Small Screens) ===
+   ========================================= */
+@media (max-width: 480px) {
+    /* 保持与统一标准一致 */
+    button, select, input[type="text"] {
+        height: 36px; /* 与统一标准保持一致 */
+        font-size: 14px; /* 与统一标准保持一致 */
+        padding: 0 10px; /* 与统一标准保持一致 */
+    }
+
+    .small-button {
+        height: 28px; /* 与统一标准保持一致 */
+        font-size: 12px; /* 与统一标准保持一致 */
+    }
+
+    .header-toggle-button {
+        height: 36px; /* 与统一标准保持一致 */
+        font-size: 0.9rem; /* 与统一标准保持一致 */
+    }
+
+    /* 调整按钮组布局 */
+    .button-group {
+        gap: 3px; /* 与统一标准保持一致 */
+        flex-wrap: wrap; /* 允许换行 */
+    }
+
+    /* 调整内容区域 */
+    .log-area {
+        min-height: 150px; /* 与PC端保持一致 */
+        font-size: 0.75rem; /* 减小字体大小以保持一致 */
+        padding: 10px; /* 与PC端保持一致 */
+    }
+
+    #deviceList {
+        max-height: 200px; /* 增加高度以显示更多设备 */
+        font-size: 0.85em; /* 与PC端保持一致 */
+    }
+
+    .side-panel {
+        max-height: 350px; /* 限制小屏幕的总高度 */
+    }
+}
+
+/* 选中设备列表项的样式 */
+#deviceList li.selected {
+    background-color: #d1ecf1;
+    border-left: 3px solid #007bff;
+    color: #0c5460;
+    font-weight: bold;
+}
+
+#deviceList li:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}

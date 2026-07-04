@@ -1,0 +1,20 @@
+# Xcode
+*.xcworkspace
+xcuserdata/
+DerivedData/
+*.xcuserstate
+
+# Build artifacts
+build/
+*.ipa
+*.app
+
+# Generated Xcode project
+ProbeTool.xcodeproj/
+
+# Frameworks
+libs/ProbeTool.xcframework/
+
+# OS
+.DS_Store
+Thumbs.db
